@@ -1,25 +1,34 @@
 package kz.epam.main;
 
 
-import kz.epam.seaport.Seaport;
 import kz.epam.ships.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
-public class World implements Runnable {
-    private static final int QUANTITY = 3;
-    private ArrayList<ShipFactory> ships = new ArrayList<>();
-    private static volatile boolean isArrived = false;
+public class World {
+    private List<ShipFactory> ships = Collections.synchronizedList(new ArrayList<ShipFactory>());
     private Random rand = new Random(47);
-    private Seaport seaport = new Seaport();
+    private static World world;
 
-    public World() throws InterruptedException {
-        addShips(QUANTITY);
+    private World() {}
+
+    public static World getInstance() {
+        if (world == null)
+            world = new World();
+        return world;
     }
 
-    private void addShips(int quantity) {
+    public List<ShipFactory> getShips() {
+        return ships;
+    }
+
+    public void setShips(List<ShipFactory> ships) {
+        this.ships = ships;
+    }
+
+    public void createShips(int quantity) {
         System.out.println("--------------------WORLD----------------------");
         for(int i = 0; i < quantity; i++) {
             ShipWithCars carShip = new ShipWithCars(i, ShipType.CAR, rand.nextInt(100) + 1 * 10);
@@ -33,21 +42,5 @@ public class World implements Runnable {
             System.out.println(s);
         }
         Collections.shuffle(ships); // pseudo-random
-    }
-
-    @Override
-    public void run() {
-        while (!isArrived) {
-            try {
-                System.out.println("\n-----------------SEAPORT---------------------");
-                for (int i = 0; i < ships.size(); i++) {
-                    seaport.arrived(ships.get(i));
-                    TimeUnit.MILLISECONDS.sleep(1000);
-                    isArrived = true;
-                }
-            } catch (InterruptedException e) {
-                System.out.println("World interrupted" + e);
-            }
-        }
     }
 }

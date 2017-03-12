@@ -1,38 +1,55 @@
 package kz.epam.seaport;
 
 
+import kz.epam.main.World;
 import kz.epam.ships.ShipFactory;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Seaport implements Runnable {
-    private LinkedBlockingQueue<ShipFactory> port = new LinkedBlockingQueue<>();
-    private LinkedBlockingQueue<ShipFactory> ppp = new LinkedBlockingQueue<>();
     private static final String ARRIVED = " <--{ Arrived at the Seaport }";
-    private volatile boolean isParked = false;
-    private ParkingFactory parking = new Parking();
+    private LinkedBlockingQueue<ShipFactory> port = new LinkedBlockingQueue<>();
+    private volatile boolean isArrived = false;
+    private ParkingFactory parkingForOilShips = new ParkingForOilShips();
+    private ParkingFactory parkingForCarShips = new ParkingForCarShips();
+    private ParkingFactory parkingForContainerShips = new ParkingForContainerShips();
+    private World world = World.getInstance();
 
-    public synchronized void arrived(ShipFactory ship) throws InterruptedException {
-        port.put(ship);
-        ppp.put(port.peek());
-        System.out.println(port.take().toString() + ARRIVED);
-        System.out.println(ppp.size());
+    public LinkedBlockingQueue<ShipFactory> getPort() {
+        return port;
+    }
+
+    public void setPort(LinkedBlockingQueue<ShipFactory> port) {
+        this.port = port;
     }
 
     @Override
     public void run() {
-        while (!isParked) {
+        while (!isArrived) {
             try {
-                System.out.println("HI");
-                for (int i = 0; i < ppp.size(); i++) {
-                    System.out.println("HI");
-                    TimeUnit.MILLISECONDS.sleep(5000);
+                System.out.println("\n-----------------SEAPORT---------------------");
+                for (int i = 0; i < world.getShips().size(); i++) {
+                    port.put(world.getShips().get(i));
+                    System.out.println(port.peek().toString() + ARRIVED);
+                    switch (port.peek().getType()) {
+                        case OIL:
+                            parkingForOilShips.parked(port.take());
+                            break;
+                        case CONTAINER:
+                            parkingForContainerShips.parked(port.take());
+                            break;
+                        case CAR:
+                            parkingForCarShips.parked(port.take());
+                            break;
+                        default:
+                            break;
+                    }
+                    TimeUnit.MILLISECONDS.sleep(1000);
+                    isArrived = true;
                 }
-                isParked = true;
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Seaport interrupted" + e);
             }
-
         }
     }
 }
