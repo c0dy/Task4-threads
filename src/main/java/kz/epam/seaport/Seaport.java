@@ -1,50 +1,50 @@
 package kz.epam.seaport;
 
-
 import kz.epam.main.World;
+import kz.epam.seaport.parkings.ParkingFactory;
+import kz.epam.seaport.parkings.ParkingForCarShips;
+import kz.epam.seaport.parkings.ParkingForContainerShips;
+import kz.epam.seaport.parkings.ParkingForOilShips;
 import kz.epam.ships.ShipFactory;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Seaport implements Runnable {
     private static final String ARRIVED = " <--{ Arrived at the Seaport }";
-    private LinkedBlockingQueue<ShipFactory> port = new LinkedBlockingQueue<>();
-    private volatile boolean isArrived = false;
+    private static final String SEAPORT = "\n-----------------SEAPORT---------------------";
+    private static LinkedBlockingQueue<ShipFactory> ships = new LinkedBlockingQueue<>();
+    private ParkingFactory parkingForContainerShips = new ParkingForContainerShips();
     private ParkingFactory parkingForOilShips = new ParkingForOilShips();
     private ParkingFactory parkingForCarShips = new ParkingForCarShips();
-    private ParkingFactory parkingForContainerShips = new ParkingForContainerShips();
+    private volatile boolean isArrived = false;
     private World world = World.getInstance();
-
-    public LinkedBlockingQueue<ShipFactory> getPort() {
-        return port;
-    }
-
-    public void setPort(LinkedBlockingQueue<ShipFactory> port) {
-        this.port = port;
-    }
 
     @Override
     public void run() {
         while (!isArrived) {
             try {
-                System.out.println("\n-----------------SEAPORT---------------------");
+                System.out.println(SEAPORT);
                 for (int i = 0; i < world.getShips().size(); i++) {
-                    port.put(world.getShips().get(i));
-                    System.out.println(port.peek().toString() + ARRIVED);
-                    switch (port.peek().getType()) {
+                    ships.put(world.getShips().get(i));
+                    System.out.println(ships.peek().toString() + ARRIVED);
+
+                    switch (ships.peek().getType()) {
                         case OIL:
-                            parkingForOilShips.parked(port.take());
+                            System.out.println(ships.peek().toString() + parkingForOilShips.toString());
+                            parkingForOilShips.parked(ships.take());
                             break;
                         case CONTAINER:
-                            parkingForContainerShips.parked(port.take());
+                            System.out.println(ships.peek().toString() + parkingForContainerShips.toString());
+                            parkingForContainerShips.parked(ships.take());
                             break;
                         case CAR:
-                            parkingForCarShips.parked(port.take());
+                            System.out.println(ships.peek().toString() + parkingForCarShips.toString());
+                            parkingForCarShips.parked(ships.take());
                             break;
                         default:
                             break;
                     }
-                    TimeUnit.MILLISECONDS.sleep(1000);
+                    TimeUnit.MILLISECONDS.sleep(500);
                     isArrived = true;
                 }
             } catch (InterruptedException e) {

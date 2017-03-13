@@ -1,6 +1,5 @@
 package kz.epam.ships;
 
-
 import kz.epam.ships.cargo.Cargo;
 import kz.epam.ships.cargo.Oil;
 import java.util.ArrayList;
