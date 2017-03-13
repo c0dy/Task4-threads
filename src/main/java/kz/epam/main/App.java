@@ -26,11 +26,5 @@ public class App {
         execForContainerShips.shutdown();
         execForOilShips.shutdown();
         execForCarShips.shutdown();
-        /*new Thread(new LoaderForOilShips()).start();
-        new Thread(new LoaderForOilShips()).start();
-        new Thread(new LoaderForCarShips()).start();
-        new Thread(new LoaderForCarShips()).start();
-        new Thread(new LoaderForContainerShips()).start();
-        new Thread(new LoaderForContainerShips()).start();*/
     }
 }

@@ -14,7 +14,7 @@ public class LoaderForContainerShips implements Runnable {
     public void run() {
         while (!isGone) {
             try {
-                Thread.sleep(8000); // waiting for ships
+                Thread.sleep(8000); // Waiting for ships to arrive at the seaport
                 while (containerShips.getSize() != 0) {
                     loader.fill(containerShips.takeShip());
                     isGone = true;

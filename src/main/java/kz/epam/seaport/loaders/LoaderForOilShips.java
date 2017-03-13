@@ -14,7 +14,7 @@ public class LoaderForOilShips implements Runnable {
     public void run() {
         while (!isGone) {
             try {
-                Thread.sleep(8000); // waiting for ships
+                Thread.sleep(8000); // Waiting for ships to arrive at the seaport
                 while (oilShips.getSize() != 0) {
                     loader.fill(oilShips.takeShip());
                     isGone = true;
